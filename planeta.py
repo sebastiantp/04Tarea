@@ -1,11 +1,10 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import numpy  as np
 
 
 
-cts=np.array([G=1, Ms=1 , mm=1])
-
+G=1
+m=1
+Ms=1
 
 
 class Planeta(object):
@@ -26,29 +25,32 @@ class Planeta(object):
         self.t_actual = 0.
         self.alpha = alpha
 
-    def ecu_de_mov(self, ds=np.array[0,0,0,0]):
+    def ecu_de_mov(self,ds=np.array([0,0,0,0])):
         '''
         Implementa la ecuación de movimiento, como sistema de ecuaciónes de
         primer orden.
         '''
-        x, y, dx, dy = self.y_actual
+        x, y, dtx, dty = self.y_actual
 
-        x = x + ds[0]
-        y = y + ds[1]
-        dx = dx + ds[2]
-        dy = dy + ds[3]
+        dx = ds[0]
+        dy = ds[1]
+        ddtx = ds[2]
+        ddty = ds[3]
 
-
-
-        fx = x*(cts[0]*cts[1])*(((2.* self.alpha) / ((x**2 + y**2)**2)) -\
-         (1. / (np.sqrt(x**2 + y**2))**3))
-
-        fy = y*(cts[0]*cts[1])*(((2.* self.alpha) / ((x**2 + y**2)**2)) - \
-        (1. / (np.sqrt(x**2 + y**2))**3))
+        x = x + dx
+        y = y +  dy
+        dtx = dtx + ddtx
+        dty = dty + ddty
 
 
 
-        return np.array([dx,dy,fx,fy])
+        fx = x*(G*Ms)*(((2.* self.alpha) / ((x**2 + y**2)**2)) -(1. / (np.sqrt(x**2 + y**2))**3))
+
+        fy = y*(G*Ms)*(((2.* self.alpha) / ((x**2 + y**2)**2)) -(1. / (np.sqrt(x**2 + y**2))**3))
+
+
+
+        return np.array([dtx,dty,fx,fy])
 
     def avanza_euler(self, dt):
         '''
@@ -99,7 +101,7 @@ class Planeta(object):
 
 
         Y_pre = np.array([x_pre,y_pre])
-        x , y, vx, vy = self.y_actual
+        x , y, dtx, dty = self.y_actual
         Y = np.array([x,y])
         Yn = 2 * Y - Y_pre + dt*dt * self.ecu_de_mov()[2:]
         Vn = (Yn - Y_pre) / (2*dt)
@@ -110,7 +112,7 @@ class Planeta(object):
 
 
 
-ieufc
+
 
 
         pass
@@ -119,10 +121,10 @@ ieufc
         '''
         Calcula la enérgía total del sistema en las condiciones actuales.
         '''
-        x, y, dx, dy = self.y_actual
-        U_t = - (cts[0]*cts[1]*cts[2])/(np.sqrt(x**2 + y**2)) \
-         + self.alpha*(cts[0]*cts[1]*cts[2])/((x**2 + y**2))
-        K_t = (dx*dx +dy*dy) * cts[2]/2.
+        x, y, dtx, dty = self.y_actual
+        U_t = - (G*Ms*m)/(np.sqrt(x**2 + y**2)) \
+         + self.alpha*(G*Ms*m)/((x**2 + y**2))
+        K_t = (dtx*dtx +dty*dty) * m/2.
         E_t = K_t + U_t
 
 
